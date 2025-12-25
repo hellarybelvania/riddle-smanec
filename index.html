@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIDDLE SMANEC - The Code Breaker</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #000000;      
+            --card-bg: rgba(10, 10, 10, 0.98); 
+            --text-main: #ffffff;
+            --accent-dark-red: #800000; /* MERAH TUA BANGET */
+            --accent-glow: #4d0000;     /* UNTUK SHADOW */
+            --border: 1px solid rgba(128, 0, 0, 0.3);
+            --error: #b30000;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Space Mono', monospace;
+            background-color: var(--bg-color);
+background-image: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url('./logo-smanec.png');            background-repeat: no-repeat;
+            background-position: center;
+            background-attachment: fixed;
+            background-size: 83%; 
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .main-interface {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border: var(--border);
+            padding: 43px 33px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(128, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .corner {
+            position: absolute;
+            width: 13px; height: 13px;
+            border-color: var(--accent-dark-red);
+            border-style: solid;
+        }
+        .tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+        .tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+        .bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+        .br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+        .logo-landing {
+            max-width: 170px;
+            display: block;
+            margin: 0 auto 30px;
+            filter: grayscale(0.3) drop-shadow(0 0 10px var(--accent-glow));
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 23px;
+            text-align: center;
+            color: var(--text-main); 
+            text-shadow: 0 0 10px rgba(128, 0, 0, 0.8);
+            border-bottom: 2px solid var(--accent-dark-red);
+            padding-bottom: 20px;
+        }
+
+        p { font-size: 0.83rem; color: #ffffff; text-align: center; letter-spacing: 1px; line-height: 1.6; }
+
+        input[type="text"] {
+            width: 100%;
+            background: rgba(128, 0, 0, 0.03);
+            border: none;
+            border-bottom: 1px solid var(--accent-dark-red);
+            color: #ffffff;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.3rem;
+            padding: 13px 0;
+            outline: none;
+            text-align: center;
+            letter-spacing: 6px;
+        }
+
+        button {
+            background: var(--accent-dark-red);
+            border: 1px solid var(--accent-dark-red);
+            color: #ffffff;
+            padding: 13px;
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            width: 100%;
+            margin-top: 23px;
+            transition: 0.3s ease;
+        }
+        button:hover { 
+            background: transparent; 
+            color: var(--text-main); 
+            box-shadow: 0 0 13px var(--accent-dark-red);
+        }
+
+        .hidden { display: none; }
+
+        .message-box {
+            margin-top: 23px;
+            padding: 13px;
+            font-size: 0.8rem;
+            border: 1px solid var(--accent-dark-red);
+            display: none;
+            text-align: center;
+            background: rgba(128, 0, 0, 0.1);
+        }
+
+        .footer-cr {
+            position: fixed;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.63rem;
+            color: #ffffff;
+            letter-spacing: 3px;
+        }
+        .footer-cr span { color: var(--accent-dark-red); font-weight: bold; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 23% {transform: translateX(-10px);} 73% {transform: translateX(10px);} }
+    </style>
+</head>
+<body>
+<video autoplay muted loop id="myVideo" style="
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%; 
+  min-height: 100%;
+  z-index: -1;
+  object-fit: cover;
+  filter: brightness(30%);">
+  <source src="bg-video.mp4" type="video/mp4">
+</video>
+    <audio id="bgm" loop>
+        <source src="musik.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="main-interface">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+
+        <div id="phase-start" style="text-align: center;">
+            <img src="logo-smanec.png" alt="LOGO" class="logo-landing">
+            <button onclick="startSystem()">START</button>
+        </div>
+
+        <div id="phase-input" class="hidden">
+            <h1>The Code Breaker</h1>
+            <p><strong>[SYSTEM ENCRYPTED]</strong><br>Halo, selamat datang di <span class="highlight">Riddle SMANEC</span>.
+Sudah menemukannya? Masukkan kode rahasia yang kalian dapatkan ke kolom di bawah.</p> 
+<p style="font-size: 0.8rem; color: var(--error);"> ⚠️ Ingat, 3 kali gagal satu huruf atau angka yang salah akan membuat akses kalian terkunci!
+</p>
+</p>
+            <div class="input-group">
+                <input type="text" id="passcode" placeholder="••••••••" autocomplete="off">
+                <div style="text-align:right; font-size:0.7rem; color:var(--accent-dark-red); margin-top:10px; font-weight:bold;" id="attempts-display">TRIES LEFT: 3</div>
+            </div>
+            <button onclick="verifyCode()">DECRYPT</button>
+<div id="msg-error" class="message-box error"><strong>ERROR: WRONG CODE! ❌</strong><br><br>Zonk! Kode yang kamu masukkan nggak cocok sama database. Coba cek lagi clue-nya, mungkin ada yang kalian lewatkan atau ada pola yang salah kamu baca. Jangan menyerah, coba lagi!
+</div>        
+ </div>
+
+        <div id="phase-choice" class="hidden">
+            <div class="message-box" style="display: block; border-color: #fff;"><strong>AUTHORIZED</strong><br>Keren! Kode berhasil dipecahkan. Ternyata logika kalian emang nggak bisa diremehkan. Silahkan melanjutkan ke RIDDLE BERIKUTNYA!</div>
+            <button onclick="window.open('https://medium.com/@hellarybelvania/%E3%85%A4-%E3%85%A4riddle-sma-necrovaltz-o2-6b7cd63f1091', '_blank')">BUKA FILE RIDDLE</button>
+            <button onclick="location.reload()" style="background:transparent; border-color:#fff; margin-top:10px;">KELUAR</button>
+        </div>
+
+        <div id="locked-screen" class="hidden" style="text-align:center;">
+            <h1 style="color:var(--error); border-color: var(--error);">TERMINATED</h1>
+            <p>GAGAL. Akses ditolak secara permanen. Silahkan hubungi Management.</p>
+            <p style="font-size:4rem; filter: grayscale(1);">🔒</p>
+        </div>
+    </div>
+
+    <div class="footer-cr">
+        CREATED BY // © <span>NECROVALTZ ACADEMY</span> 2025
+    </div>
+
+    <script>
+        const CORRECT_CODE = "NEXUS_784"; 
+        let attempts = 3;
+        const bgm = document.getElementById('bgm');
+
+        if (localStorage.getItem('smanec_locked') === 'true') {
+            document.getElementById('phase-start').classList.add('hidden');
+            lockSystem();
+        }
+
+        function startSystem() {
+            bgm.play().catch(e => {});
+            document.getElementById('phase-start').classList.add('hidden');
+            document.getElementById('phase-input').classList.remove('hidden');
+        }
+
+        function verifyCode() {
+            const input = document.getElementById('passcode');
+            const userCode = input.value.trim().toUpperCase();
+
+            if (userCode === CORRECT_CODE) {
+                document.getElementById('phase-input').classList.add('hidden');
+                document.getElementById('phase-choice').classList.remove('hidden');
+            } else {
+                attempts--;
+                document.getElementById('attempts-display').innerText = "TRIES LEFT: " + attempts;
+                document.getElementById('msg-error').style.display = 'block';
+                input.value = "";
+                document.querySelector('.main-interface').style.animation = "shake 0.4s";
+                setTimeout(() => { document.querySelector('.main-interface').style.animation = ""; }, 400);
+                if (attempts <= 0) lockSystem();
+            }
+        }
+
+        function lockSystem() {
+            localStorage.setItem('smanec_locked', 'true');
+            document.getElementById('phase-input').classList.add('hidden');
+            document.getElementById('locked-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
